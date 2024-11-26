@@ -1,0 +1,233 @@
+<html>
+  <head>
+    <base target="_top">
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+      }
+      
+      .colourbox {
+        height: 10px;
+        width: 50px;
+        border: 1px solid grey;
+        border-radius: 10px;
+        padding: 5px;
+        background-color: red;
+        display: inline-block;
+      }
+
+      .box {
+        border: 2px solid grey;
+        border-radius: 10px;
+        padding: 5px;
+        position: relative;
+        margin-bottom: 10px;
+      }
+      
+      .row {
+        display: flex;
+        flex: 1;
+      }
+
+      .column {
+        flex: 33%;
+        padding-top: 5px;
+        padding-bottom: 5px;
+      }
+
+      .section-title {
+        padding-top: 5px;
+        padding-bottom: 10px;
+      }
+
+      .input {
+        width: 60px;
+        display: inline-block;
+      }
+
+      .btn {
+        display: inline-block;
+        font-weight: normal;
+        text-align: center;
+        cursor: pointer;
+        background-color: #4285f4;
+        color: #ffffff;
+        border: 1px solid transparent;
+        padding: 10px 20px;
+        font-size: 14px;
+        line-height: 1.42857143;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+        margin-bottom: 10px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      .btn:hover {
+        background-color: #3367d6;
+      }
+
+      .btn-secondary {
+        background-color: #f1f3f4;
+        color: #5f6368;
+      }
+
+      .btn-secondary:hover {
+        background-color: #dadce0;
+      }
+
+      .btn-container {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: 20px;
+      }
+
+      .btn-container button {
+        width: 48%;
+      }
+
+
+    </style>
+  </head>
+
+  <body>
+    <div>
+      <p>Welcome to the colour editor. Here you can set the custom colours for your sheet.</p>
+      <p>Please use the following fields to set the colours in Hexadecimal code (without the #).</p> 
+      <p>They will be saved for future use. The currently saved colours are displayed below.</p>
+    </div>
+    
+    <!-- Colour Inputs -->
+    <div class="box">
+      <div class="row">
+        <div class="section-title">Set your custom colours:</div>
+      </div>
+
+      <!-- Text Color -->
+      <div class="row">
+        <div class="column">Text:</div>
+        <div class="column"><input class="input" id="text" type="text" placeholder="<?= getColour_('text') ?>"></div>
+        <div class="column"><div class="colourbox" style="background-color:#<?= getColour_('text') ?>"></div></div>
+      </div>
+
+      <!-- Background Color -->
+      <div class="row">
+        <div class="column">Background:</div>
+        <div class="column"><input class="input" id="background" type="text" placeholder="<?= getColour_('background') ?>"></div>
+        <div class="column"><div class="colourbox" style="background-color:#<?= getColour_('background') ?>"></div></div>
+      </div>
+
+      <!-- Accent 1 -->
+      <div class="row">
+        <div class="column">Accent 1:</div>
+        <div class="column"><input class="input" id="accent1" type="text" placeholder="<?= getColour_('accent1') ?>"></div>
+        <div class="column"><div class="colourbox" style="background-color:#<?= getColour_('accent1') ?>"></div></div>
+      </div>
+
+      <!-- Accent 2 -->
+      <div class="row">
+        <div class="column">Accent 2:</div>
+        <div class="column"><input class="input" id="accent2" type="text" placeholder="<?= getColour_('accent2') ?>"></div>
+        <div class="column"><div class="colourbox" style="background-color:#<?= getColour_('accent2') ?>"></div></div>
+      </div>
+
+      <!-- Accent 3 -->
+      <div class="row">
+        <div class="column">Accent 3:</div>
+        <div class="column"><input class="input" id="accent3" type="text" placeholder="<?= getColour_('accent3') ?>"></div>
+        <div class="column"><div class="colourbox" style="background-color:#<?= getColour_('accent3') ?>"></div></div>
+      </div>
+
+      <!-- Accent 4 -->
+      <div class="row">
+        <div class="column">Accent 4:</div>
+        <div class="column"><input class="input" id="accent4" type="text" placeholder="<?= getColour_('accent4') ?>"></div>
+        <div class="column"><div class="colourbox" style="background-color:#<?= getColour_('accent4') ?>"></div></div>
+      </div>
+
+      <!-- Accent 5 -->
+      <div class="row">
+        <div class="column">Accent 5:</div>
+        <div class="column"><input class="input" id="accent5" type="text" placeholder="<?= getColour_('accent5') ?>"></div>
+        <div class="column"><div class="colourbox" style="background-color:#<?= getColour_('accent5') ?>"></div></div>
+      </div>
+
+      <!-- Accent 6 -->
+      <div class="row">
+        <div class="column">Accent 6:</div>
+        <div class="column"><input class="input" id="accent6" type="text" placeholder="<?= getColour_('accent6') ?>"></div>
+        <div class="column"><div class="colourbox" style="background-color:#<?= getColour_('accent6') ?>"></div></div>
+      </div>
+
+      <!-- Link -->
+      <div class="row">
+        <div class="column">Hyperlink:</div>
+        <div class="column"><input class="input" id="hyperlink" type="text" placeholder="<?= getColour_('hyperlink') ?>"></div>
+        <div class="column"><div class="colourbox" style="background-color:#<?= getColour_('hyperlink') ?>"></div></div>
+      </div>
+    </div>
+
+    <div>
+      <p>After clicking, please wait for the script to work.</p>
+    </div>
+    
+    <!-- Buttons -->
+    <div class="btn-container">
+      <button class="btn" onClick="grabtext()">Change Theme</button>
+      <button class="btn btn-secondary" onClick="resetColors()">Reset to Default</button>
+    </div>
+
+    <div class="btn-container">
+      <button class="btn btn-secondary" onClick="window.open('https://github.com/NikRpk/GoogleAppsScripts/tree/main/Edit%20the%20google%20sheets%20theme%20colour','_blank')">Get Help</button>
+      <button class="btn btn-secondary" onClick="google.script.host.close()">Close</button>
+    </div>
+
+    <script type="text/javascript">
+      function grabtext() {
+        var text = document.getElementById("text").value.toString(); 
+        var background = document.getElementById("background").value.toString(); 
+        var accent1 = document.getElementById("accent1").value.toString(); 
+        var accent2 = document.getElementById("accent2").value.toString(); 
+        var accent3 = document.getElementById("accent3").value.toString(); 
+        var accent4 = document.getElementById("accent4").value.toString(); 
+        var accent5 = document.getElementById("accent5").value.toString(); 
+        var accent6 = document.getElementById("accent6").value.toString();
+        var hyperlink = document.getElementById("hyperlink").value.toString();
+        
+        var fields = [text, background, accent1, accent2, accent3, accent4, accent5, accent6, hyperlink];
+        var checker = /^(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
+        var counter = 0;
+
+        for (var item of fields) {
+          if (checker.test(item) === false && item !== '') {
+            alert(item + " is an invalid colour. Please ensure it's a valid hexadecimal colour code.");
+            return;
+          }
+          counter++;
+        };
+        console.log(fields)
+        
+        if (counter == fields.length) {
+          var dict = {
+            "text": text, 
+            "background": background, 
+            "accent1": accent1, 
+            "accent2": accent2, 
+            "accent3": accent3, 
+            "accent4": accent4, 
+            "accent5": accent5, 
+            "accent6": accent6,
+            "hyperlink" : hyperlink
+          };
+          google.script.run.saveColour(dict);
+        }
+      };
+
+      function resetColors() {
+        google.script.run.resetToDefault(true);
+      };
+      
+    </script>
+  </body>
+</html>
