@@ -8,7 +8,6 @@ I have only released this within my organisation and not as a public add-on. You
 
 # Instructions
 
-https://user-images.githubusercontent.com/49123781/208134312-17e61bf2-82c8-44dc-b9f6-7e2398607dcc.mov
 
 # Frequently Asked Questions 
 
