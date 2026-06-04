@@ -1,33 +1,75 @@
-# Theme Colour Editor - Google Add-On
+# Theme Colour Editor for Google Sheets
 
-The aim of this add-on is to allow you to set the custom colours in your Google Sheet quickly and save these colours across all of your worksheets so that you don't have to manually input hexadecimal numbers each time you want to style a new sheet! 
+A Google Sheets add-on for setting and saving custom theme colours across all your spreadsheets — no more typing hex codes manually every time you style a new sheet.
 
-Please find the complete code used to create this add-on in the files in this repository. Feel free to copy or adapt it to fit your own custom needs. 
+Colours are saved to your user profile, so once configured they carry through to every sheet you open the add-on in.
 
-I have only released this within my organisation and not as a public add-on. You can quite easily do this for your own organisation or also as a public addon if you want. 
+---
 
-# Instructions
-<img width="547" alt="caea7849-4dec-41b4-8317-f7f1c9aa244f" src="https://github.com/user-attachments/assets/2160e007-faca-41ef-b117-f8c2a7955072">
+## Features
 
-1. "Set theme colours" -> Use this to set theme colours of the sheet to the default ones that you have saved (can be custom to your profile)
-2. "Edit theme colours" -> Edit the default theme colours. These will be saved in the addon and can be accessed in all future sheets. These do not set the default colours for all sheets, you will have trigger "Set theme colours" for that. 
-3. "Reset to default" -> Set the default theme colours to the ones provided by the add-on on install
-4. "Help" -> redirects to the GitHub page where you can raise an isssue and I will address it. 
+- **Theme colours** — set all 9 Sheets theme slots (Text, Background, Accent 1–6, Hyperlink) in one go
+- **Extra colours** — inject additional colours directly into the paint-bucket custom palette using a temp-sheet workaround (no limit)
+- **Native colour picker** — click the colour tile to open a visual picker, or type a hex code directly
+- **Hex input** — accepts values with or without `#`
+- **Live preview** — colour tiles update as you type
+- **Copy to clipboard** — hover a tile and click the copy icon to grab the hex value
+- **Persistent settings** — colours are saved per user and restored every time the sidebar opens
+- **Clean UI** — Google-style sidebar with loading indicator and toast notifications
 
-# Frequently Asked Questions 
+---
 
-If you do not find your issue here, please raise an issue [here](https://github.com/NikRpk/GoogleScripts/issues/new/choose) and I will try to answer it as fast as possible. 
+## Menu options
 
-#### Nothing happens when I click on "Save colours & Change Theme"
-The most common reason is that you are logged into multiple google accounts and are currently using one that is not the default. 
-   1. You could log out of all accounts and only log into one account. 
-   2. You could open the sheet using your main account.
+| Option | Description |
+|---|---|
+| **Set theme colours** | Applies your saved colours to the current sheet's theme |
+| **Edit theme colours** | Opens the sidebar to view and update your saved colours |
+| **Reset to default** | Resets all colours to the built-in defaults |
 
-#### A new sheet does not have the right colours set
-The addon does not do this automatically. You will have to click on "Set theme colours" in the addon menu to do this. 
+---
 
-#### The initial colours are weird
-These are just the default colours and you can update these. If you do update these (see the menu "Edit theme colours"), they will be saved for future sheets. 
+## Installation
 
+This add-on is designed to be deployed within a Google Workspace organisation. It is not published to the Google Workspace Marketplace.
 
+1. Open [script.google.com](https://script.google.com) and create a new project
+2. Copy the contents of `Code.js`, `Sidebar.html`, and `appsscript.json` into your project
+3. Deploy as an **Editor add-on** (Deploy → New deployment → Editor Add-on)
+4. Install it on a Google Sheet via **Extensions → Add-ons → Manage add-ons**
 
+To test without a full deployment, use **Deploy → Test deployments** and link it to a spreadsheet.
+
+---
+
+## Customising the defaults
+
+Edit the `DEFAULT_SETTINGS` object at the top of `Code.js` to set the colours that appear when a user first opens the add-on or resets to default:
+
+```js
+const DEFAULT_SETTINGS = {
+  "text":       "000000",
+  "background": "ffffff",
+  "accent1":    "50c846",
+  // ... etc
+  "extra1":     "FF941A",
+  "extra2":     "FFE900",
+  // ...
+};
+```
+
+---
+
+## FAQ
+
+**Nothing happens when I click "Apply theme"**  
+Most commonly caused by being signed into multiple Google accounts. Open the sheet from your primary account, or sign out of all others first.
+
+**A new sheet doesn't have the right colours**  
+The add-on doesn't apply colours automatically on open. Use **Extensions → Set theme colours** to apply them to the current sheet.
+
+**I want more than 5 extra colours**  
+Click **+ Add colour** in the Extra Colours section of the sidebar. There's no limit.
+
+**Issues / feature requests**  
+Please [open an issue](https://github.com/NikRpk/gas-theme-colour-editor-sheets/issues/new) and I'll get back to you.
