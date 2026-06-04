@@ -1,0 +1,618 @@
+<html>
+  <head>
+    <base target="_top">
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+
+      body {
+        font-family: 'Roboto', Arial, sans-serif;
+        font-size: 13px;
+        color: #202124;
+        background: #fff;
+        padding: 16px;
+      }
+
+      .intro {
+        color: #5f6368;
+        font-size: 12px;
+        line-height: 1.5;
+        margin-bottom: 16px;
+      }
+
+      /* ── Section card ── */
+      .card {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        overflow: hidden;
+      }
+
+      .card-header {
+        padding: 10px 12px 8px;
+        border-bottom: 1px solid #e0e0e0;
+        background: #f8f9fa;
+      }
+
+      .card-title {
+        font-family: 'Google Sans', 'Roboto', Arial, sans-serif;
+        font-size: 12px;
+        font-weight: 500;
+        color: #3c4043;
+        letter-spacing: 0.01em;
+        text-transform: uppercase;
+      }
+
+      .card-hint {
+        font-size: 11px;
+        color: #80868b;
+        margin-top: 2px;
+      }
+
+      .card-body { padding: 4px 0; }
+
+      /* ── Colour row ── */
+      .colour-row {
+        display: flex;
+        align-items: center;
+        padding: 5px 12px;
+        gap: 8px;
+        border-bottom: 1px solid #f1f3f4;
+      }
+
+      .colour-row:last-child { border-bottom: none; }
+
+      .colour-label {
+        flex: 0 0 80px;
+        font-size: 12px;
+        color: #3c4043;
+      }
+
+      /* ── Text input wrapper ── */
+      .input-wrap {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        background: #f1f3f4;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        padding: 0 8px;
+        transition: border-color 0.15s, background 0.15s;
+      }
+
+      .input-wrap:focus-within {
+        background: #fff;
+        border-color: #4285f4;
+      }
+
+      .input-wrap.invalid {
+        border-color: #d93025 !important;
+        background: #fef7f6 !important;
+      }
+
+      .input-wrap .hash {
+        color: #80868b;
+        font-size: 12px;
+        user-select: none;
+        padding-right: 2px;
+      }
+
+      .colour-input {
+        border: none;
+        background: transparent;
+        font-family: 'Roboto Mono', monospace, Arial, sans-serif;
+        font-size: 12px;
+        color: #202124;
+        width: 100%;
+        outline: none;
+        padding: 5px 0;
+        text-transform: uppercase;
+      }
+
+      .colour-input::placeholder { color: #bdc1c6; text-transform: none; }
+
+      /* ── Colour picker button ── */
+      .picker-btn {
+        flex: 0 0 20px;
+        height: 20px;
+        width: 20px;
+        border-radius: 3px;
+        border: 1px solid rgba(0,0,0,0.15);
+        cursor: pointer;
+        padding: 0;
+        overflow: hidden;
+        position: relative;
+        flex-shrink: 0;
+      }
+
+      /* Hide the native colour input visually but keep it clickable */
+      .picker-btn input[type="color"] {
+        position: absolute;
+        inset: -4px;
+        width: calc(100% + 8px);
+        height: calc(100% + 8px);
+        opacity: 0;
+        cursor: pointer;
+        border: none;
+        padding: 0;
+      }
+
+      /* ── Swatch (click to copy) ── */
+      .colour-swatch {
+        flex: 0 0 24px;
+        height: 24px;
+        width: 24px;
+        border-radius: 4px;
+        border: 1px solid rgba(0,0,0,0.12);
+        background: #fff;
+        flex-shrink: 0;
+        cursor: pointer;
+        title: "Click to copy hex";
+        transition: transform 0.1s, box-shadow 0.1s;
+      }
+
+      .colour-swatch:hover {
+        transform: scale(1.15);
+        box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+      }
+
+      .colour-swatch:active { transform: scale(0.95); }
+
+      /* ── Remove button (extra rows) ── */
+      .remove-btn {
+        flex: 0 0 20px;
+        background: none;
+        border: none;
+        color: #bdc1c6;
+        cursor: pointer;
+        font-size: 16px;
+        line-height: 1;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: color 0.15s;
+      }
+
+      .remove-btn:hover { color: #d93025; }
+
+      /* ── Add button ── */
+      .btn-add {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        width: 100%;
+        padding: 8px;
+        background: none;
+        border: none;
+        border-top: 1px solid #f1f3f4;
+        color: #4285f4;
+        font-family: 'Roboto', Arial, sans-serif;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+
+      .btn-add:hover { background: #f0f4ff; }
+
+      /* ── Action buttons ── */
+      .actions {
+        margin-top: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .btn {
+        width: 100%;
+        padding: 9px 16px;
+        font-family: 'Google Sans', 'Roboto', Arial, sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        transition: background 0.15s, box-shadow 0.15s;
+        letter-spacing: 0.01em;
+      }
+
+      .btn-primary { background: #4285f4; color: #fff; }
+      .btn-primary:hover { background: #3367d6; box-shadow: 0 1px 3px rgba(66,133,244,0.4); }
+
+      .btn-row { display: flex; gap: 8px; }
+      .btn-row .btn { flex: 1; }
+
+      .btn-outline {
+        background: #fff;
+        color: #3c4043;
+        border: 1px solid #dadce0;
+      }
+
+      .btn-outline:hover { background: #f8f9fa; }
+
+      .status {
+        font-size: 11px;
+        color: #80868b;
+        text-align: center;
+        margin-top: 8px;
+      }
+
+      .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+      /* ── Loading bar ── */
+      .loading-bar {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        height: 3px;
+        background: #e8eaed;
+        z-index: 100;
+      }
+
+      .loading-bar::after {
+        content: '';
+        display: block;
+        height: 100%;
+        width: 40%;
+        background: #4285f4;
+        border-radius: 0 2px 2px 0;
+        animation: slide 1.2s ease-in-out infinite;
+      }
+
+      @keyframes slide {
+        0%   { margin-left: -40%; }
+        100% { margin-left: 100%; }
+      }
+
+      .loading-bar.visible { display: block; }
+
+      /* ── Loading overlay ── */
+      .loading-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(255,255,255,0.65);
+        z-index: 99;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .loading-overlay.visible { display: flex; }
+
+      .spinner {
+        width: 28px;
+        height: 28px;
+        border: 3px solid #e8eaed;
+        border-top-color: #4285f4;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+
+      @keyframes spin { to { transform: rotate(360deg); } }
+
+      .loading-label {
+        font-size: 12px;
+        color: #5f6368;
+        font-family: 'Roboto', Arial, sans-serif;
+      }
+
+      /* ── Toast ── */
+      .toast {
+        position: fixed;
+        bottom: 16px;
+        left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        background: #202124;
+        color: #fff;
+        font-size: 12px;
+        padding: 8px 16px;
+        border-radius: 20px;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s, transform 0.2s;
+        z-index: 200;
+      }
+
+      .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="loading-bar" id="loading-bar"></div>
+    <div class="loading-overlay" id="loading-overlay">
+      <div class="spinner"></div>
+      <span class="loading-label" id="loading-label">Applying theme…</span>
+    </div>
+    <div class="toast" id="toast"></div>
+
+    <p class="intro">Set hex colours for your sheet theme. Use the picker or type a hex code (# optional). Click a swatch to copy its value.</p>
+
+    <!-- Theme Colours -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Theme colours</div>
+      </div>
+      <div class="card-body">
+
+        <? var themeFields = [
+          ['text',       'Text'],
+          ['background', 'Background'],
+          ['accent1',    'Accent 1'],
+          ['accent2',    'Accent 2'],
+          ['accent3',    'Accent 3'],
+          ['accent4',    'Accent 4'],
+          ['accent5',    'Accent 5'],
+          ['accent6',    'Accent 6'],
+          ['hyperlink',  'Hyperlink']
+        ]; ?>
+
+        <? for (var i = 0; i < themeFields.length; i++) { ?>
+          <? var key = themeFields[i][0]; var label = themeFields[i][1]; var saved = getColour_(key); var hex = (saved !== 'none') ? saved : 'ffffff'; ?>
+          <div class="colour-row">
+            <span class="colour-label"><?= label ?></span>
+            <div class="input-wrap" id="wrap-<?= key ?>">
+              <span class="hash">#</span>
+              <input class="colour-input" id="<?= key ?>" type="text"
+                     placeholder="<?= hex ?>"
+                     oninput="onTextInput('<?= key ?>')"
+                     autocomplete="off" spellcheck="false">
+            </div>
+            <div class="picker-btn" id="picker-btn-<?= key ?>" style="background:#<?= hex ?>">
+              <input type="color" value="#<?= hex ?>"
+                     oninput="onPickerInput('<?= key ?>', this.value)"
+                     title="Pick colour">
+            </div>
+            <div class="colour-swatch" id="swatch-<?= key ?>"
+                 style="background-color:#<?= hex ?>"
+                 onclick="copyHex('<?= key ?>')"
+                 title="Click to copy"></div>
+          </div>
+        <? } ?>
+
+      </div>
+    </div>
+
+    <!-- Extra Colours -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Extra colours</div>
+        <div class="card-hint">Injected into the paint-bucket custom palette</div>
+      </div>
+      <div class="card-body">
+        <div id="extra-rows"></div>
+        <button class="btn-add" onclick="addExtraRow()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#4285f4"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+          Add colour
+        </button>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button class="btn btn-primary" onclick="grabtext()">Apply theme</button>
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="resetColors()">Reset to default</button>
+        <button class="btn btn-outline" onclick="window.open('https://github.com/NikRpk/gas-theme-colour-editor-sheets','_blank')">Help</button>
+      </div>
+    </div>
+
+    <p class="status">Changes take effect after clicking "Apply theme".</p>
+
+    <script>
+      var savedExtras  = <?!= getExtraColoursJson() ?>;
+      var initialCount = <?!= getExtraCount() ?>;
+      var extraRowCount = 0;
+      var hexRe = /^([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
+
+      window.addEventListener('load', function () {
+        var count = Math.max(initialCount, Object.keys(savedExtras).length);
+        for (var i = 1; i <= count; i++) addExtraRow();
+      });
+
+      function normalise(val) {
+        return val.trim().replace(/^#/, '').toUpperCase();
+      }
+
+      /* Called when the text input changes — syncs picker + swatch, validates */
+      function onTextInput(key) {
+        var raw  = document.getElementById(key).value;
+        var bare = normalise(raw);
+        var wrap = document.getElementById('wrap-' + key);
+
+        if (bare === '') {
+          wrap.classList.remove('invalid');
+          return;
+        }
+
+        if (hexRe.test(bare)) {
+          wrap.classList.remove('invalid');
+          var full = bare.length === 3
+            ? bare.split('').map(function(c){ return c+c; }).join('')
+            : bare;
+          var hex6 = '#' + full;
+          setVisuals(key, hex6);
+        } else {
+          wrap.classList.add('invalid');
+        }
+      }
+
+      /* Called when the native picker changes — pushes value to text input + swatch */
+      function onPickerInput(key, hexValue) {
+        var bare = hexValue.replace('#', '').toUpperCase();
+        var input = document.getElementById(key);
+        input.value = bare;
+        document.getElementById('wrap-' + key).classList.remove('invalid');
+        setVisuals(key, hexValue);
+      }
+
+      function setVisuals(key, hex6) {
+        var swatch     = document.getElementById('swatch-' + key);
+        var pickerBtn  = document.getElementById('picker-btn-' + key);
+        var pickerInput = pickerBtn ? pickerBtn.querySelector('input[type=color]') : null;
+        if (swatch)      swatch.style.backgroundColor = hex6;
+        if (pickerBtn)   pickerBtn.style.background    = hex6;
+        if (pickerInput) pickerInput.value             = hex6;
+      }
+
+      /* Click a swatch → copy hex to clipboard */
+      function copyHex(key) {
+        var swatch = document.getElementById('swatch-' + key);
+        var bg = swatch.style.backgroundColor; // rgb(r,g,b)
+        var input = document.getElementById(key);
+        var val = input.value ? normalise(input.value) : (input.placeholder || '');
+        if (!val) return;
+        try {
+          navigator.clipboard.writeText('#' + val).then(function() {
+            showToast('Copied #' + val);
+          });
+        } catch(e) {
+          showToast('#' + val);
+        }
+      }
+
+      /* ── Extra colour rows ── */
+      function addExtraRow() {
+        extraRowCount++;
+        var idx   = extraRowCount;
+        var key   = 'extra' + idx;
+        var saved = savedExtras[key] || '';
+        var hex6  = saved ? '#' + saved : '#ffffff';
+
+        var container = document.getElementById('extra-rows');
+        var row = document.createElement('div');
+        row.className = 'colour-row';
+        row.id = 'extra-row-' + idx;
+
+        row.innerHTML =
+          '<span class="colour-label">Extra ' + idx + '</span>' +
+          '<div class="input-wrap" id="wrap-' + key + '">' +
+            '<span class="hash">#</span>' +
+            '<input class="colour-input" id="' + key + '" type="text"' +
+            '  placeholder="' + (saved || 'e.g. ff5f64') + '"' +
+            '  value="' + saved + '"' +
+            '  autocomplete="off" spellcheck="false">' +
+          '</div>' +
+          '<div class="picker-btn" id="picker-btn-' + key + '" style="background:' + hex6 + '">' +
+            '<input type="color" value="' + hex6 + '">' +
+          '</div>' +
+          '<div class="colour-swatch" id="swatch-' + key + '"' +
+          '  style="background-color:' + hex6 + '"' +
+          '  title="Click to copy"></div>' +
+          '<button class="remove-btn" title="Remove">×</button>';
+
+        container.appendChild(row);
+
+        var textInput   = document.getElementById(key);
+        var pickerInput = row.querySelector('input[type=color]');
+        var swatch      = document.getElementById('swatch-' + key);
+        var removeBtn   = row.querySelector('.remove-btn');
+
+        textInput.addEventListener('input', function() { onTextInput(key); });
+        pickerInput.addEventListener('input', function() { onPickerInput(key, pickerInput.value); });
+        swatch.addEventListener('click', function() { copyHex(key); });
+        removeBtn.addEventListener('click', function() { row.remove(); });
+      }
+
+      /* ── Loading / toast ── */
+      function showLoading(label) {
+        document.getElementById('loading-label').textContent = label || 'Working…';
+        document.getElementById('loading-bar').classList.add('visible');
+        document.getElementById('loading-overlay').classList.add('visible');
+        document.querySelectorAll('.btn').forEach(function(b) { b.disabled = true; });
+      }
+
+      function hideLoading() {
+        document.getElementById('loading-bar').classList.remove('visible');
+        document.getElementById('loading-overlay').classList.remove('visible');
+        document.querySelectorAll('.btn').forEach(function(b) { b.disabled = false; });
+      }
+
+      function showToast(msg) {
+        var t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(function() { t.classList.remove('show'); }, 2500);
+      }
+
+      /* ── Collect & submit ── */
+      function grabtext() {
+        var themeIds = ['text','background','accent1','accent2','accent3','accent4','accent5','accent6','hyperlink'];
+        var dict = {};
+        var hasError = false;
+
+        for (var i = 0; i < themeIds.length; i++) {
+          var id  = themeIds[i];
+          var raw = document.getElementById(id).value;
+          var val = normalise(raw);
+          var wrap = document.getElementById('wrap-' + id);
+          if (val !== '' && !hexRe.test(val)) {
+            wrap.classList.add('invalid');
+            hasError = true;
+          } else {
+            wrap.classList.remove('invalid');
+            dict[id] = val;
+          }
+        }
+
+        var visibleCount = 0;
+        for (var j = 1; j <= extraRowCount; j++) {
+          var rowEl = document.getElementById('extra-row-' + j);
+          if (!rowEl) continue;
+          visibleCount++;
+          var extraInput = document.getElementById('extra' + j);
+          var extraRaw   = extraInput ? extraInput.value : '';
+          var extraVal   = normalise(extraRaw);
+          var wrapEl     = document.getElementById('wrap-extra' + j);
+          if (extraVal !== '' && !hexRe.test(extraVal)) {
+            if (wrapEl) wrapEl.classList.add('invalid');
+            hasError = true;
+          } else {
+            if (wrapEl) wrapEl.classList.remove('invalid');
+            dict['extra' + j] = extraVal;
+          }
+        }
+
+        if (hasError) {
+          showToast('⚠ Fix the highlighted fields first');
+          return;
+        }
+
+        dict['extraCount'] = visibleCount;
+        showLoading('Applying theme…');
+        google.script.run
+          .withSuccessHandler(function(count) {
+            showToast('✓ ' + count + ' colour' + (count !== 1 ? 's' : '') + ' applied');
+            setTimeout(function() { google.script.run.showSidebar(); }, 1000);
+          })
+          .withFailureHandler(function(err) {
+            hideLoading();
+            showToast('⚠ ' + err.message);
+          })
+          .saveColour(dict);
+      }
+
+      function resetColors() {
+        if (confirm('Reset all colours to the HelloFresh defaults?')) {
+          showLoading('Resetting to defaults…');
+          google.script.run
+            .withSuccessHandler(function() {
+              showToast('✓ Reset to defaults');
+            })
+            .withFailureHandler(function(err) {
+              hideLoading();
+              showToast('⚠ ' + err.message);
+            })
+            .resetToDefault(true);
+        }
+      }
+    </script>
+  </body>
+</html>
