@@ -338,6 +338,7 @@
       </div>
       <div class="card-body">
 
+        <? var _allData = JSON.parse(getSidebarData()); ?>
         <? var themeFields = [
           ['text',       'Text'],
           ['background', 'Background'],
@@ -351,7 +352,7 @@
         ]; ?>
 
         <? for (var i = 0; i < themeFields.length; i++) { ?>
-          <? var key = themeFields[i][0]; var label = themeFields[i][1]; var saved = getColour_(key); var hex = (saved !== 'none') ? saved : 'ffffff'; ?>
+          <? var key = themeFields[i][0]; var label = themeFields[i][1]; var hex = _allData[key] || 'ffffff'; ?>
           <div class="colour-row">
             <span class="colour-label"><?= label ?></span>
             <div class="input-wrap" id="wrap-<?= key ?>">
@@ -400,8 +401,15 @@
     <p class="status">Changes take effect after clicking "Apply theme".</p>
 
     <script>
-      var savedExtras  = <?!= getExtraColoursJson() ?>;
-      var initialCount = <?!= getExtraCount() ?>;
+      var _data        = <?!= JSON.stringify(_allData) ?>;
+      var savedExtras  = (function() {
+        var e = {};
+        Object.keys(_data).forEach(function(k) {
+          if (k.startsWith('extra') && k !== 'extraCount') e[k] = _data[k];
+        });
+        return e;
+      })();
+      var initialCount = Math.max(parseInt(_data.extraCount, 10) || 0, <?!= DEFAULT_EXTRA_COUNT ?>);
       var extraRowCount = 0;
       var hexRe = /^([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
 
@@ -584,8 +592,8 @@
         showLoading('Applying theme…');
         google.script.run
           .withSuccessHandler(function(count) {
+            hideLoading();
             showToast('✓ ' + count + ' colour' + (count !== 1 ? 's' : '') + ' applied');
-            setTimeout(function() { google.script.run.showSidebar(); }, 1000);
           })
           .withFailureHandler(function(err) {
             hideLoading();
@@ -594,12 +602,36 @@
           .saveColour(dict);
       }
 
+      function applyDefaultsToDOM(defaults) {
+        var themeIds = ['text','background','accent1','accent2','accent3','accent4','accent5','accent6','hyperlink'];
+        themeIds.forEach(function(id) {
+          var val = defaults[id] || 'ffffff';
+          var input = document.getElementById(id);
+          if (input) input.value = val;
+          setVisuals(id, '#' + val);
+        });
+
+        // Remove all existing extra rows and rebuild from defaults
+        var container = document.getElementById('extra-rows');
+        container.innerHTML = '';
+        extraRowCount = 0;
+        savedExtras = {};
+        var defaultExtraKeys = Object.keys(defaults).filter(function(k) { return k.startsWith('extra'); }).sort();
+        defaultExtraKeys.forEach(function(k) { savedExtras[k] = defaults[k]; });
+        var count = Math.max(defaultExtraKeys.length, <?!= DEFAULT_EXTRA_COUNT ?>);
+        for (var i = 1; i <= count; i++) addExtraRow();
+      }
+
       function resetColors() {
         if (confirm('Reset all colours to the HelloFresh defaults?')) {
           showLoading('Resetting to defaults…');
           google.script.run
-            .withSuccessHandler(function() {
-              showToast('✓ Reset to defaults');
+            .withSuccessHandler(function(defaultsJson) {
+              hideLoading();
+              if (defaultsJson) {
+                applyDefaultsToDOM(JSON.parse(defaultsJson));
+                showToast('✓ Reset to defaults');
+              }
             })
             .withFailureHandler(function(err) {
               hideLoading();

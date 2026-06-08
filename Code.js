@@ -41,7 +41,6 @@ function onOpen(e) {
 
 
 function showSidebar() {
-  setUpProperties_();
   var html = HtmlService.createTemplateFromFile('Sidebar')
     .evaluate()
     .setTitle('Edit colours');
@@ -79,7 +78,7 @@ function resetToDefault(sidebar) {
   var confirm = ui.alert("Confirm action", "Are you sure you want to reset your default colours?", ui.ButtonSet.YES_NO);
 
   if (confirm === ui.Button.NO) {
-    return;
+    return null;
   };
 
   PROPERTIES.forEach(function(prop) {
@@ -107,9 +106,8 @@ function resetToDefault(sidebar) {
 
   userProperties.setProperty('extraCount', DEFAULT_EXTRA_COUNT.toString());
 
-  if (sidebar) {
-    showSidebar();
-  }
+  // Return the defaults so the client can update the DOM in-place (no reopen needed)
+  return JSON.stringify(DEFAULT_SETTINGS);
 };
 
 
@@ -159,6 +157,29 @@ function saveColour(dict) {
   }
 
   return counter;
+};
+
+// Returns all data the sidebar needs in one batched PropertiesService read.
+// Also seeds any missing properties with defaults (replaces the per-open setUpProperties_ call).
+function getSidebarData() {
+  var userProperties = PropertiesService.getUserProperties();
+  var props = userProperties.getProperties();
+  var updates = {};
+
+  PROPERTIES.forEach(function(p) {
+    if (!props[p] && DEFAULT_SETTINGS[p]) {
+      updates[p] = DEFAULT_SETTINGS[p];
+    }
+  });
+  if (!props.extraCount) {
+    updates.extraCount = DEFAULT_EXTRA_COUNT.toString();
+  }
+  if (Object.keys(updates).length > 0) {
+    userProperties.setProperties(updates);
+    Object.keys(updates).forEach(function(k) { props[k] = updates[k]; });
+  }
+
+  return JSON.stringify(props);
 };
 
 // Returns all saved extra colour values as a JSON string for use in the sidebar template
