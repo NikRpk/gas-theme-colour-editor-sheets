@@ -74,8 +74,20 @@ OAuth scopes required:
 cd /Users/niklas.roepke/Developer/theme-colours
 clasp push
 
-# Open in browser to test
-clasp open
+# Create a new version (note the version number printed)
+clasp version "v{X.Y} - description"
+
+# Redeploy the versioned deployment to the new version number
+clasp deploy \
+  --deploymentId AKfycbw0sJxH8dg3Oc_S0cn6-4UCGZT6NGNE5hIvVBt6Q2v9XEshY5F4r_Q5lbdbiPtIMswc \
+  --versionNumber {N} \
+  --description "v{X.Y} - description"
+
+# !! REQUIRED — update the Marketplace SDK version number !!
+# Go to: console.cloud.google.com
+# → APIs & Services → Google Workspace Marketplace SDK → App Configuration
+# → "Sheets add-on script version" field → set to {N}
+# Without this step, the published add-on still serves the old version.
 ```
 
 The add-on must be opened via **Extensions → Theme Colour Editor → Edit theme colours** in a Google Sheet (not the Apps Script editor) to test the sidebar.
