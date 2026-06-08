@@ -111,66 +111,62 @@
 
       .colour-input::placeholder { color: #bdc1c6; text-transform: none; }
 
-      /* ── Colour picker button ── */
-      .picker-btn {
-        flex: 0 0 20px;
-        height: 20px;
-        width: 20px;
-        border-radius: 3px;
-        border: 1px solid rgba(0,0,0,0.15);
-        cursor: pointer;
-        padding: 0;
-        overflow: hidden;
+      /* ── Combined colour tile (picker + copy) ── */
+      .colour-tile {
         position: relative;
+        flex: 0 0 28px;
+        height: 28px;
+        width: 28px;
+        border-radius: 5px;
+        border: 1px solid rgba(0,0,0,0.15);
         flex-shrink: 0;
+        cursor: pointer;
+        overflow: visible;
       }
 
-      /* Hide the native colour input visually but keep it clickable */
-      .picker-btn input[type="color"] {
+      /* Native picker — invisible, covers the tile */
+      .colour-tile input[type="color"] {
         position: absolute;
-        inset: -4px;
-        width: calc(100% + 8px);
-        height: calc(100% + 8px);
+        inset: 0;
+        width: 100%;
+        height: 100%;
         opacity: 0;
         cursor: pointer;
         border: none;
         padding: 0;
       }
 
-      /* ── Swatch (click to copy) ── */
-      .colour-swatch {
-        flex: 0 0 24px;
-        height: 24px;
-        width: 24px;
-        border-radius: 4px;
-        border: 1px solid rgba(0,0,0,0.12);
+      /* Copy icon — appears on hover, sits above the picker input */
+      .copy-icon {
+        position: absolute;
+        top: -7px;
+        right: -7px;
+        width: 15px;
+        height: 15px;
         background: #fff;
-        flex-shrink: 0;
+        border: 1px solid #dadce0;
+        border-radius: 3px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
         cursor: pointer;
-        title: "Click to copy hex";
-        transition: transform 0.1s, box-shadow 0.1s;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.15);
       }
 
-      .colour-swatch:hover {
-        transform: scale(1.15);
-        box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-      }
+      .copy-icon svg { display: block; }
 
-      .colour-swatch:active { transform: scale(0.95); }
+      .colour-tile:hover .copy-icon { display: flex; }
 
-      /* ── Remove button (extra rows) ── */
       .remove-btn {
-        flex: 0 0 20px;
         background: none;
         border: none;
         color: #bdc1c6;
         cursor: pointer;
-        font-size: 16px;
+        font-size: 13px;
         line-height: 1;
-        padding: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        padding: 0 0 0 4px;
+        vertical-align: middle;
         transition: color 0.15s;
       }
 
@@ -365,15 +361,12 @@
                      oninput="onTextInput('<?= key ?>')"
                      autocomplete="off" spellcheck="false">
             </div>
-            <div class="picker-btn" id="picker-btn-<?= key ?>" style="background:#<?= hex ?>">
-              <input type="color" value="#<?= hex ?>"
-                     oninput="onPickerInput('<?= key ?>', this.value)"
-                     title="Pick colour">
+            <div class="colour-tile" id="tile-<?= key ?>" style="background:#<?= hex ?>">
+              <input type="color" value="#<?= hex ?>" oninput="onPickerInput('<?= key ?>', this.value)" title="Pick colour">
+              <span class="copy-icon" onclick="copyHex('<?= key ?>'); event.stopPropagation();" title="Copy hex">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="#5f6368"><path d="M16 1H4C3 1 2 2 2 3v14h2V3h12V1zm3 4H8C7 5 6 6 6 7v14c0 1 1 2 2 2h11c1 0 2-1 2-2V7c0-1-1-2-2-2zm0 16H8V7h11v14z"/></svg>
+              </span>
             </div>
-            <div class="colour-swatch" id="swatch-<?= key ?>"
-                 style="background-color:#<?= hex ?>"
-                 onclick="copyHex('<?= key ?>')"
-                 title="Click to copy"></div>
           </div>
         <? } ?>
 
@@ -454,27 +447,23 @@
       }
 
       function setVisuals(key, hex6) {
-        var swatch     = document.getElementById('swatch-' + key);
-        var pickerBtn  = document.getElementById('picker-btn-' + key);
-        var pickerInput = pickerBtn ? pickerBtn.querySelector('input[type=color]') : null;
-        if (swatch)      swatch.style.backgroundColor = hex6;
-        if (pickerBtn)   pickerBtn.style.background    = hex6;
-        if (pickerInput) pickerInput.value             = hex6;
+        var tile        = document.getElementById('tile-' + key);
+        var pickerInput = tile ? tile.querySelector('input[type=color]') : null;
+        if (tile)        tile.style.background  = hex6;
+        if (pickerInput) pickerInput.value       = hex6;
       }
 
-      /* Click a swatch → copy hex to clipboard */
+      /* Click the copy icon → copy hex to clipboard */
       function copyHex(key) {
-        var swatch = document.getElementById('swatch-' + key);
-        var bg = swatch.style.backgroundColor; // rgb(r,g,b)
         var input = document.getElementById(key);
-        var val = input.value ? normalise(input.value) : (input.placeholder || '');
+        var val = input && input.value ? normalise(input.value) : (input && input.placeholder ? input.placeholder : '');
         if (!val) return;
         try {
           navigator.clipboard.writeText('#' + val).then(function() {
-            showToast('Copied #' + val);
+            showToast('Copied #' + val.toUpperCase());
           });
         } catch(e) {
-          showToast('#' + val);
+          showToast('#' + val.toUpperCase());
         }
       }
 
@@ -492,7 +481,9 @@
         row.id = 'extra-row-' + idx;
 
         row.innerHTML =
-          '<span class="colour-label">Extra ' + idx + '</span>' +
+          '<span class="colour-label">Extra ' + idx +
+            '<button class="remove-btn" title="Remove">×</button>' +
+          '</span>' +
           '<div class="input-wrap" id="wrap-' + key + '">' +
             '<span class="hash">#</span>' +
             '<input class="colour-input" id="' + key + '" type="text"' +
@@ -500,24 +491,24 @@
             '  value="' + saved + '"' +
             '  autocomplete="off" spellcheck="false">' +
           '</div>' +
-          '<div class="picker-btn" id="picker-btn-' + key + '" style="background:' + hex6 + '">' +
+          '<div class="colour-tile" id="tile-' + key + '" style="background:' + hex6 + '">' +
             '<input type="color" value="' + hex6 + '">' +
-          '</div>' +
-          '<div class="colour-swatch" id="swatch-' + key + '"' +
-          '  style="background-color:' + hex6 + '"' +
-          '  title="Click to copy"></div>' +
-          '<button class="remove-btn" title="Remove">×</button>';
+            '<span class="copy-icon" title="Copy hex">' +
+              '<svg width="9" height="9" viewBox="0 0 24 24" fill="#5f6368"><path d="M16 1H4C3 1 2 2 2 3v14h2V3h12V1zm3 4H8C7 5 6 6 6 7v14c0 1 1 2 2 2h11c1 0 2-1 2-2V7c0-1-1-2-2-2zm0 16H8V7h11v14z"/></svg>' +
+            '</span>' +
+          '</div>';
 
         container.appendChild(row);
 
         var textInput   = document.getElementById(key);
-        var pickerInput = row.querySelector('input[type=color]');
-        var swatch      = document.getElementById('swatch-' + key);
+        var tile        = document.getElementById('tile-' + key);
+        var pickerInput = tile.querySelector('input[type=color]');
+        var copyIcon    = tile.querySelector('.copy-icon');
         var removeBtn   = row.querySelector('.remove-btn');
 
         textInput.addEventListener('input', function() { onTextInput(key); });
         pickerInput.addEventListener('input', function() { onPickerInput(key, pickerInput.value); });
-        swatch.addEventListener('click', function() { copyHex(key); });
+        copyIcon.addEventListener('click', function(e) { e.stopPropagation(); copyHex(key); });
         removeBtn.addEventListener('click', function() { row.remove(); });
       }
 
@@ -562,30 +553,34 @@
           }
         }
 
-        var visibleCount = 0;
-        for (var j = 1; j <= extraRowCount; j++) {
-          var rowEl = document.getElementById('extra-row-' + j);
-          if (!rowEl) continue;
-          visibleCount++;
-          var extraInput = document.getElementById('extra' + j);
+        // Collect visible extra rows in DOM order and remap to contiguous extra1, extra2, …
+        // Iterating by DOM presence (not by sequential index) handles the case where
+        // rows were removed in any order — avoiding gaps in the submitted key set.
+        var extraRows = document.querySelectorAll('#extra-rows .colour-row');
+        var newIdx = 0;
+        extraRows.forEach(function(rowEl) {
+          newIdx++;
+          var newKey   = 'extra' + newIdx;
+          // The text input id matches the original key (e.g. "extra3"), find it inside the row
+          var extraInput = rowEl.querySelector('.colour-input');
+          var wrapEl     = rowEl.querySelector('.input-wrap');
           var extraRaw   = extraInput ? extraInput.value : '';
           var extraVal   = normalise(extraRaw);
-          var wrapEl     = document.getElementById('wrap-extra' + j);
           if (extraVal !== '' && !hexRe.test(extraVal)) {
             if (wrapEl) wrapEl.classList.add('invalid');
             hasError = true;
           } else {
             if (wrapEl) wrapEl.classList.remove('invalid');
-            dict['extra' + j] = extraVal;
+            dict[newKey] = extraVal;
           }
-        }
+        });
 
         if (hasError) {
           showToast('⚠ Fix the highlighted fields first');
           return;
         }
 
-        dict['extraCount'] = visibleCount;
+        dict['extraCount'] = newIdx;
         showLoading('Applying theme…');
         google.script.run
           .withSuccessHandler(function(count) {

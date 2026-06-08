@@ -119,14 +119,24 @@ function resetToDefault(sidebar) {
 
 
 function saveColour(dict) {
-  var ui = SpreadsheetApp.getUi();
   var counter = 0;
+  var userProperties = PropertiesService.getUserProperties();
 
   // Save the extra colour count so we restore the right number of rows next open
   if (dict.extraCount !== undefined) {
-    PropertiesService.getUserProperties().setProperty('extraCount', dict.extraCount.toString());
+    userProperties.setProperty('extraCount', dict.extraCount.toString());
     delete dict.extraCount;
   }
+
+  // Delete any extra* properties that are no longer present in the submitted dict.
+  // This handles the case where the user removed rows in the sidebar — without this
+  // the orphaned keys (e.g. extra6, extra7) reappear on the next sidebar open.
+  var existingKeys = userProperties.getKeys();
+  existingKeys.forEach(function(k) {
+    if (k.startsWith('extra') && k !== 'extraCount' && !(k in dict)) {
+      userProperties.deleteProperty(k);
+    }
+  });
 
   var extraHexValues = [];
 
@@ -146,7 +156,7 @@ function saveColour(dict) {
   // Inject all extras in a single temp-sheet operation
   if (extraHexValues.length > 0) {
     injectExtraColours_(extraHexValues);
-  };
+  }
 
   return counter;
 };
